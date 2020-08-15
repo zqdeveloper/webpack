@@ -8,7 +8,7 @@ process.env.NODE_ENV = 'development';
 //复用loader
 const commonCssLoader = [
     MiniCssExtractPlugin.loader,
-    'css-lodaer',
+    'css-loader',
     {
         //还需要在package.json中定义browserslist
         loader: 'postcss-loader',
@@ -29,20 +29,9 @@ module.exports = {
     module: {
         rules:[
             {
-                test:/\.css$/,
-                use: [...commonCssLoader]
-            },
-            {
-                test: /\.less$/,
-                use: [...commonCssLoader,'less-loader']
-            },
-            //正常来讲，一个文件只能被一个loader处理；
-            //当一个文件要被多个loader处理，那么一定要指定loader的执行先后顺序；
-            // 先执行eslint再执行babel
-            {
                 //在package.json中来添加eslintConfig --> airbnb
                 test:/\.js$/,
-                exclude: '/node_modules',
+                exclude: /node_modules/,
                 loader: 'eslint-loader',
                 //优先执行
                 enforce:'pre',
@@ -51,47 +40,64 @@ module.exports = {
                 }
             },
             {
-                test: /\.js$/,
-                exclude: '/node_modules/',
-                loader: 'babel-loader',
-                options: {
-                    presets:[
-                        [
-                            '@babel/preset-env',
-                            {
-                                useBuiltIns:'usage',
-                                corejs: {version:3},
-                                targets: {
-                                    chrome: '60',
-                                    firefox: '50'
-                                }
-                            }
-
-                        ]
-                    ]
-                }
-            },
-            {
-                test:/\.(jpg|png|gif)$/,
-                loader: 'url-loader',
-                options: {
-                    limit: 8*1024,
-                    //使用来html-loader一定要关闭url-loader的esModel
-                    esModule: false,
-                    name: '[hash:10].[ext]',
-                    outputPath: 'imgs'
-                }
-            },
-            {
-                test: /\.html$/,
-                loader: 'html-loader',
-            },
-            {
-                exclude:/\.(js|css|less|html|jpg|png|gif)$/,
-                loader: 'file-loader',
-                options: {
-                    outputPath: 'media'
-                }
+                //一下loader只会匹配一个
+                //注意:不能让两个loader处理同一种类型的文件
+                oneOf: [
+                    {
+                        test:/\.css$/,
+                        use: [...commonCssLoader]
+                    },
+                    {
+                        test: /\.less$/,
+                        use: [...commonCssLoader,'less-loader']
+                    },
+                    //正常来讲，一个文件只能被一个loader处理；
+                    //当一个文件要被多个loader处理，那么一定要指定loader的执行先后顺序；
+                    // 先执行eslint再执行babel
+                    {
+                        test: /\.js$/,
+                        exclude: /node_modules/,
+                        loader: 'babel-loader',
+                        options: {
+                            presets:[
+                                [
+                                    '@babel/preset-env',
+                                    {
+                                        useBuiltIns:'usage',
+                                        corejs: {version:3},
+                                        targets: {
+                                            chrome: '60',
+                                            firefox: '50'
+                                        }
+                                    }
+        
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        test:/\.(jpg|png|gif)$/,
+                        loader: 'url-loader',
+                        options: {
+                            limit: 8*1024,
+                            //使用来html-loader一定要关闭url-loader的esModel
+                            esModule: false,
+                            name: '[hash:10].[ext]',
+                            outputPath: 'imgs'
+                        }
+                    },
+                    {
+                        test: /\.html$/,
+                        loader: 'html-loader',
+                    },
+                    {
+                        exclude:/\.(js|css|less|html|jpg|png|gif)$/,
+                        loader: 'file-loader',
+                        options: {
+                            outputPath: 'media'
+                        }
+                    }
+                ]
             }
         ]
     },

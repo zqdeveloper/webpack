@@ -25,7 +25,7 @@
 },
 ```
 
-#2. 打包HTML资源
+# 2. 打包HTML资源
 1. 插件名称:html-webpack-plugin
 2. 安装命令:  ```npm i html-webpack-plugin -D```
 3. 插件引入:
@@ -38,7 +38,7 @@
   }),
 ```
 
-#3. 打包图片资源
+# 3. 打包图片资源
 1. 处理图片
 1.1 loader:    url-loader和file-loader
 1.2 安装命令:   ```npm i url-loader  file-loader -D```
@@ -74,7 +74,7 @@
     loader:'html-loader'
 }
 ```
-#4.打包其它资源
+# 4.打包其它资源
 1. loader名称: file-loader
 2. 安装命令: ```npm i file-loader -D```
 2. 配置方式:
@@ -89,7 +89,7 @@
 }
 ```
 
-#5. DevServer
+# 5. DevServer
 1. 插件： webpack-dev-server
 2. 安装命令: ```npm i webpack-dev-server -D```
 1. 配置方式:
@@ -109,7 +109,7 @@ devServer:{
 }
 ```
 
-#6. 开发环境配置:
+# 6. 开发环境配置:
 ```
 const {resolve} = require('path')
 const HtmlWebPackPlugin = require('html-webpack-plugin')
@@ -175,7 +175,7 @@ module.exports = {
 }
 ```
 
-#7. 提取css成单独文件
+# 7. 提取css成单独文件
 1. 插件名成:  mini-css-extract-plugin
 2. 安装命令: ```npm i mini-css-extract-plugin```
 2. 插件引入： const MiniCssExtractPlugin = require('mini-css-extract-plugin')
@@ -211,7 +211,7 @@ module.exports = {
 },
 ```
 
-#8. css兼容性处理
+# 8. css兼容性处理
 1. loader名称: postcss-loader
 2. 安装命令: ```npm i postcss-loader -D```
 2. 需要结合css loader一起使用
@@ -277,7 +277,7 @@ module.exports = {
   process.env.NODE_ENV = 'development'
 ```
 
-#9. 压缩css
+# 9. 压缩css
 1. 所用的插件: optimize-css-assets-webpack-plugin
 2. 安装命令:  ```npm i  optimize-css-assets-webpack-plugin -D```
 3. 插件引入：  const OptimizeCssAssetsWebpaclPlugin  = require('optimize-css-assets-webpack-plugin')
@@ -286,7 +286,7 @@ module.exports = {
   new OptimizeCssAssetsWebpaclPlugin()
 ```
 
-#10. js语法检查
+# 10. js语法检查
 1. 插件名称: eslint-loader、eslint 、eslint-config-airbnb-base 、 eslint-plugin-import
 2. 安装命令: ``npm i eslint eslint-loader eslint-config-airbnb-base eslint-plugin-import -D``
 3. 配置：
@@ -302,7 +302,7 @@ module.exports = {
  {
       test: /\.js$/,
       loader: 'eslint-loader',
-      exclude: '/node_modules/',//排除node_modules
+      exclude: /node_modules/,//排除node_modules
       options: {
           fix: true
       }
@@ -318,7 +318,7 @@ module.exports = {
   }
 ```
 
-#11.js 兼容性处理
+# 11.js 兼容性处理
 1. 所用的loader: babel-loader @babel/preset-env @babel/core
 2. 安装命令: ```npm i babel-loader @babel/preset-env @babel/core -D```
 3. 配置:
@@ -380,10 +380,10 @@ module.exports = {
 }
 ```
 
-#12.js压缩
+# 12.js压缩
 只需要把mode修改为production即可
 
-#13.html压缩
+# 13.html压缩
 使用HtmlWebpackPlugin即可，如下:
 ```
 new HtmlWebpackPlugin({
@@ -397,7 +397,7 @@ new HtmlWebpackPlugin({
 })
 ```
 
-#14. 生产环境配置
+# 14. 生产环境配置
 ```
 const {resolve} = require('path')
 
@@ -443,7 +443,7 @@ module.exports = {
             {
                 //在package.json中来添加eslintConfig --> airbnb
                 test:/\.js$/,
-                exclude: '/node_modules',
+                exclude: /node_modules/,
                 loader: 'eslint-loader',
                 //优先执行
                 enforce:'pre',
@@ -453,7 +453,7 @@ module.exports = {
             },
             {
                 test: /\.js$/,
-                exclude: '/node_modules/',
+                exclude: /node_modules/,
                 loader: 'babel-loader',
                 options: {
                     presets:[
@@ -513,7 +513,7 @@ module.exports = {
 }
 ```
 
-#15. 开发环境优化
+# 15. 开发环境优化
 ```
 
 /**
@@ -594,7 +594,7 @@ module.exports = {
 }
 ```
 
-#16.source-map
+# 16.source-map
     source-map: 一种提供源代码到构建后代码映射技术（如构建后代码出错了，通过映射关系可以追踪源代码的错误）
     [inline-|hidden-|eval-][nosources-][cheap-[module-]]souce-map
 
@@ -642,3 +642,118 @@ module.exports = {
 
         -->source-map /cheap-module-source-map
 
+# 17. oneof
+在roles种使用oneof,需要注意事项: 
+* 一下loader只会匹配一个
+* 注意:不能让两个loader处理同一种类型的文件
+* 正常来讲，一个文件只能被一个loader处理；
+* 当一个文件要被多个loader处理，那么一定要指定loader的执行先后顺序；
+* 先执行eslint再执行babel
+代码如下：
+```
+rules:[
+     {
+         //在package.json中来添加eslintConfig --> airbnb
+         test:/\.js$/,
+         exclude: /node_modules/,
+         loader: 'eslint-loader',
+         //优先执行
+         enforce:'pre',
+         options: {
+             fix: true
+         }
+     },
+     {
+         //一下loader只会匹配一个
+         //注意:不能让两个loader处理同一种类型的文件
+         oneof: [
+             {
+                 test:/\.css$/,
+                 use: [...commonCssLoader]
+             },
+             {
+                 test: /\.less$/,
+                 use: [...commonCssLoader,'less-loader']
+             },
+             //正常来讲，一个文件只能被一个loader处理；
+        /当一个文件要被多个loader处理，那么一定要指定loa  行先后顺序；
+             // 先执行eslint再执行babel
+             {
+                 test: /\.js$/,
+                 exclude: /node_modules/,
+                 loader: 'babel-loader',
+                 options: {
+                     presets:[
+                         [
+                             '@babel/preset-env',
+                             {
+                                 useBuiltIns:'usage',
+                                 corejs: {version:3},
+                                 targets: {
+                                     chrome: '60',
+                                     firefox: '50'
+                                 }
+                             }
+  
+                         ]
+                     ]
+                 }
+             },
+             {
+                 test:/\.(jpg|png|gif)$/,
+                 loader: 'url-loader',
+                 options: {
+                     limit: 8*1024,
+                /使用来html-loader一定要关闭url-loader的e l
+                     esModule: false,
+                     name: '[hash:10].[ext]',
+                     outputPath: 'imgs'
+                 }
+             },
+             {
+                 test: /\.html$/,
+                 loader: 'html-loader',
+             },
+             {
+                 exclude:/\.(js|css|less|html|jpg|png|gif)$/,
+                 loader: 'file-loader',
+                 options: {
+                     outputPath: 'media'
+                 }
+             }
+         ]
+     }
+]
+```
+
+# 18.缓存
+1. 在babel-loader中开启缓存
+```
+{
+    test: /\.js$/,
+    exclude: /node_modules/,
+    loader: 'babel-loader',
+    options: {
+        presets:[
+            [
+                '@babel/preset-env',
+                {
+                    useBuiltIns:'usage',
+                    corejs: {version:3},
+                    targets: {
+                        chrome: '60',
+                        firefox: '50'
+                    }
+                }
+        
+            ]
+        ],
+        //开启babel缓存
+        //第二次构建时，会读取之前的缓存
+        cacheDirectory: true
+    }
+},
+```
+
+2. 文件缓存
+3. 
